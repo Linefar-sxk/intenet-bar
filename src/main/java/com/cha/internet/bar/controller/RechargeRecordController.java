@@ -177,7 +177,7 @@ public class RechargeRecordController {
         netPlayRecordEntity.setDateDelete(new Date().getTime());
         Date now =new Date();
         netPlayRecordEntity.setEndTime(now);
-        netPlayRecordEntity.setDuration(String.valueOf((now.getTime()-netPlayRecordEntity.getStartTime().getTime())/1000));
+        netPlayRecordEntity.setDuration(String.valueOf((now.getTime()-old.getStartTime().getTime())/1000));
         netPlayRecordEntity.setDateUpdate(new Date());
         QueryWrapper<NetPlayRecordEntity> q = new QueryWrapper<>();
         q.eq(NetPlayRecordEntity.ID_CARD, idCard);
