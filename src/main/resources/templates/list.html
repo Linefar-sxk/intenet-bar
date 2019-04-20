@@ -41,6 +41,7 @@
 <body>
 <div style="height: 5%">
     <p style="text-align: center;" class="title">**网吧会员上网列表</p>
+    <input type="button" onclick="loginOut()" style="float: right;margin-top: -110px;" value="退出登陆"/>
 </div>
 <div style="height: 95%">
     <div class="condition">
@@ -272,6 +273,10 @@
         var mi = myDate.getMinutes();
         var second = myDate.getSeconds();
         return year + "-" + month + "-" + day + " " + hour + ":" + mi + ":" + second;
+    }
+
+    function loginOut() {
+        window.location.href = '/dialog/loginOut';
     }
 
 </script>

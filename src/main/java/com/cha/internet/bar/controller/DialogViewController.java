@@ -39,4 +39,13 @@ public class DialogViewController {
     public String detail(){
         return "dialog/detail";
     }
+
+    /**
+     * @Description : 登出
+     * @Date 23:43 2019/4/20
+     **/
+    @RequestMapping(value = "loginOut",method = RequestMethod.GET)
+    public String loginOut(){
+        return "index";
+    }
 }
