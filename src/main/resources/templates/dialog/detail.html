@@ -108,7 +108,7 @@
                         var tableHtml;
                         for (var i = 0; i < data.length; i++) {
                             //次处 duration 换成上网时长
-                            tableHtml += "<tr><td>" + dateConvert(data[i].startTime) + "</td><td>" + dateConvert(data.endTime) + "</td><td>" + data[i].duration/3600 + "</tr>";
+                            tableHtml += "<tr><td>" + dateConvert(data[i].startTime) + "</td><td>" + dateConvert(data[i].endTime) + "</td><td style='text-align: center;'>" + (data[i].duration/3600).toFixed(2) + "</tr>";
                         }
                         $("#play-table").html(tableHtml);
                     }

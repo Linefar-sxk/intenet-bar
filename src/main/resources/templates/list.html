@@ -114,14 +114,22 @@
                     },
                     {
                         field: 'startTime', title: '上机时间', width: 200,
-                        formatter: function (value) {
-                            return dateConvert(value);
+                        formatter: function (value, row, index) {
+                            if (value != null){
+                                return dateConvert(value);
+                            } else {
+                                return "";
+                            }
                         }
                     },
                     {
                         field: 'endTime', title: '预计下机时间', width: 200,
-                        formatter: function (value) {
-                            return dateConvert(value);
+                        formatter: function (value, row, index) {
+                            if (value != null){
+                                return dateConvert(value);
+                            } else {
+                                return "";
+                            }
                         }
                     },
                     {
@@ -216,11 +224,12 @@
         if (confirm("您确定删除吗？")) {
             $.ajax({
                 type: "post",
-                url: "/admin/login/" + row.id,
+                url: "/customer/delete/" + row.id,
                 success: function (data) {
                     console.log(data);
                     if (data) {
-                        alert("会员删除成功！")
+                        alert("会员删除成功！");
+                        gridReload();
                     }
                 }
             })
@@ -245,16 +254,17 @@
             _data = {idCard: $("#input-text").val()};
         } else if ($("#select").val() == "name" && $("#activationState").val() =="-请选上网状态-") {
             _data = {name: $("#input-text").val()};
+        } else if ($("#activationState").val() !="-请选上网状态-") {
+            _data = {activationState:$("#activationState").val()};
         } else {
-            _data = {};
+            _data = {}
         }
         dataGrid('/customer/list',_data);
     }
 
 
     function dateConvert(date) {
-        Date
-        myDate = new Date(date);
+        var myDate = new Date(date);
         var year = myDate.getFullYear();
         var month = myDate.getMonth() + 1;
         var day = myDate.getDate();
