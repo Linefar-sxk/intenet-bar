@@ -11,6 +11,7 @@ import com.cha.internet.bar.service.INetPlayRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -132,6 +133,9 @@ public class CustomerController {
             queryWrapper.eq(CustomerEntity.NAME, name);
         }
         List<CustomerEntity> customerEntities = customerService.list(queryWrapper);
+        if(CollectionUtils.isEmpty(customerEntities)){
+            return new ArrayList<>();
+        }
         List<CustomerResp> resp = BeanConvertUtil.listConvert(customerEntities, CustomerResp.class);
         QueryWrapper<NetPlayRecordEntity> q2 = new QueryWrapper<>();
         List<String> idCrads = customerEntities.stream().map(CustomerEntity::getIdCard).collect(Collectors.toList());
