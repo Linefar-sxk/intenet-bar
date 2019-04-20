@@ -36,7 +36,7 @@ public class AdminEntity implements Serializable {
 
     private Date dateUpdate;
 
-    private Date dateDelete;
+    private long dateDelete;
 
 
     public static final String ID = "id";

@@ -120,36 +120,35 @@ public class RechargeRecordController {
         customerService.save(customerEntity);
     }
 
-    @ApiOperation(value = "扣除金额上网", httpMethod = "POST")
+    @ApiOperation(value = "上网", httpMethod = "POST")
     @RequestMapping(value = "play", method = RequestMethod.POST)
-    public void play(String idCard, int money) {
+    public boolean play(String idCard) {
         QueryWrapper<CustomerEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(CustomerEntity.ID_CARD, idCard);
         CustomerEntity customerEntity = customerService.getOne(queryWrapper);
-        int nowMoney = Integer.parseInt(customerEntity.getMoney()) - money;
-        if (nowMoney > -1) {
-            customerEntity.setMoney(String.valueOf(nowMoney));
-            customerService.save(customerEntity);
-
-            NetPlayRecordEntity netPlayRecordEntity = new NetPlayRecordEntity();
-            netPlayRecordEntity.setId(UUID.randomUUID().toString());
-            netPlayRecordEntity.setIdCard(idCard);
-            int duration = money * one;
-            netPlayRecordEntity.setDuration(String.valueOf(duration));
-            Date now = new Date();
-            netPlayRecordEntity.setStartTime(now);
-            netPlayRecordEntity.setEndTime(new Date(System.currentTimeMillis() + duration * 1000));
-            netPlayRecordEntity.setDateCreate(now);
-            netPlayRecordEntity.setDateUpdate(now);
-            netPlayRecordService.save(netPlayRecordEntity);
-
-            QueryWrapper<CustomerEntity> q = new QueryWrapper<>();
-            q.eq(CustomerEntity.ID_CARD, idCard).eq(CustomerEntity.DATE_DELETE, 0);
-            CustomerEntity customer = customerService.getOne(q);
-            customer.setActivationState(1);
-            customer.setDateUpdate(new Date());
-            customerService.updateById(customer);
+        int oldMoney = Integer.parseInt(customerEntity.getMoney());
+        if (oldMoney < 6) {
+            return false;
         }
+        NetPlayRecordEntity netPlayRecordEntity = new NetPlayRecordEntity();
+        netPlayRecordEntity.setId(UUID.randomUUID().toString());
+        netPlayRecordEntity.setIdCard(idCard);
+        int duration = oldMoney * one;
+        netPlayRecordEntity.setDuration(String.valueOf(duration));
+        Date now = new Date();
+        netPlayRecordEntity.setStartTime(now);
+        netPlayRecordEntity.setEndTime(new Date(System.currentTimeMillis() + duration * 1000));
+        netPlayRecordEntity.setDateCreate(now);
+        netPlayRecordEntity.setDateUpdate(now);
+        netPlayRecordService.save(netPlayRecordEntity);
+
+        QueryWrapper<CustomerEntity> q = new QueryWrapper<>();
+        q.eq(CustomerEntity.ID_CARD, idCard).eq(CustomerEntity.DATE_DELETE, 0);
+        CustomerEntity customer = customerService.getOne(q);
+        customer.setActivationState(1);
+        customer.setDateUpdate(new Date());
+        customerService.updateById(customer);
+        return false;
 
     }
 
@@ -173,7 +172,7 @@ public class RechargeRecordController {
         customerService.updateById(customerEntity);
         //软删上网时间
         NetPlayRecordEntity netPlayRecordEntity = new NetPlayRecordEntity();
-        netPlayRecordEntity.setDateDelete(new Date());
+        netPlayRecordEntity.setDateDelete(new Date().getTime());
         netPlayRecordEntity.setDateUpdate(new Date());
         QueryWrapper<NetPlayRecordEntity> q = new QueryWrapper<>();
         q.eq(NetPlayRecordEntity.ID_CARD, idCard);

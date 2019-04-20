@@ -11,4 +11,6 @@ import java.util.Date;
 public class CustomerResp extends CustomerEntity {
 
     private Date startTime;
+
+    private Date endTime;
 }

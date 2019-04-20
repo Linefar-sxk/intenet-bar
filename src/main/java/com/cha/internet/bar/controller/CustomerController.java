@@ -127,17 +127,18 @@ public class CustomerController {
         List<CustomerResp> resp = BeanConvertUtil.listConvert(customerEntities, CustomerResp.class);
         QueryWrapper<NetPlayRecordEntity> q2 = new QueryWrapper<>();
         List<String> idCrads = customerEntities.stream().map(CustomerEntity::getIdCard).collect(Collectors.toList());
-//        q2.in(NetPlayRecordEntity.ID_CARD, idCrads).eq(NetPlayRecordEntity.DATE_DELETE, 0);
+       q2.in(NetPlayRecordEntity.ID_CARD, idCrads).eq(NetPlayRecordEntity.DATE_DELETE, 0);
         if (idCrads.size() > 0){
             q2.in(NetPlayRecordEntity.ID_CARD, idCrads);
         }
-        q2.eq(NetPlayRecordEntity.DATE_DELETE,null);
+        q2.eq(NetPlayRecordEntity.DATE_DELETE,0);
         List<NetPlayRecordEntity> nets = netPlayRecordService.list(q2);
         Map<String, NetPlayRecordEntity> netMap = nets.stream().collect(Collectors.toMap(NetPlayRecordEntity::getIdCard, Function.identity(), (k1, k2) -> k1));
         for(CustomerResp temp:resp){
             NetPlayRecordEntity entity=netMap.get(temp.getIdCard());
             if(entity !=null){
                 temp.setStartTime(entity.getStartTime());
+                temp.setEndTime(entity.getEndTime());
             }
 
         }
