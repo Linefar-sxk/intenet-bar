@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>会员信息修改</title>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/zDialog.js"></script>
+    <script src="/js/zDrag.js"></script>
+    <link rel="stylesheet" href="/css/dialog.css">
+
+    <script type="text/javascript">
+        var customerId;
+        $(function () {
+             customerId =  getUrlParam('customerId');
+            setValue();
+
+        })
+
+        function dialogClose() {
+            parentDialog.close();
+        }
+
+        function update() {
+            $.ajax({
+                type: "post",
+                url: "/customer/update/"+customerId,
+                data: {
+                    name: $("#name").val(),
+                    idCard: $("#idCard").val(),
+                    money: $("#money").val(),
+                    type: $("#type").val(),
+                    activationState: $("#activationState").val()
+                },
+                success: function (data) {
+                    if (data) {
+                        window.parent.notify("修改", "成功");
+                        window.parent.gridReload();
+                        dialogClose();
+                    } else {
+                        alert("修改会员信息失败!")
+                    }
+                }
+            })
+        }
+
+        function setValue() {
+            $.ajax({
+                type: "get",
+                url: "/customer/getByCustomerId",
+                data: {customerId: customerId},
+                dataType:"json",
+                success: function (data) {
+                    if (data) {
+                        $("#name").val(data.name);
+                        $("#idCard").val(data.idCard);
+                        $("#money").val(data.money);
+                        $("#type").val(data.type);
+                        $("#activationState").val(data.activationState);
+                        $("#id").val(data.id);
+                    } else {
+                        $("#name").val("");
+                        $("#idCard").val("");
+                        $("#money").val(0);
+                        $("#type").val("");
+                        $("#activationState").val("");
+                        $("#id").val("");
+                    }
+                }
+            })
+
+        }
+
+        //获取url中的参数
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+            if (r != null) return unescape(r[2]); return null; //返回参数值
+        }
+
+    </script>
+
+</head>
+
+<body>
+<div id="forlogin">
+
+    <table width="100%" border="0" align="center" cellpadding="4" cellspacing="4" bordercolor="#666666">
+
+        <tr style="display: none;">
+            <td width="150" align="right">主键：</td>
+            <td><input type="text" id="id"/></td>
+        </tr>
+
+        <tr>
+            <td width="150" align="right">姓名：</td>
+            <td><input type="text" id="name"/></td>
+        </tr>
+
+        <tr>
+            <td width="150" align="right">身份证号：</td>
+            <td><input type="text" id="idCard"/></td>
+        </tr>
+
+        <tr>
+            <td align="right">充值金额</td>
+            <td><input type="text" id="money"/></td>
+        </tr>
+
+        <tr>
+            <td align="right">会员卡类型：</td>
+            <td>
+                <select id="type" class="select">
+                    <option>-请选择会员卡类型-</option>
+                    <option value="year">年卡</option>
+                    <option value="month">月卡</option>
+                    <option value="common">次卡</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td align="right">激活状态：</td>
+            <td>
+                <select id="activationState" class="select">
+                    <option>-请选择激活状态-</option>
+                    <option value="0">未激活</option>
+                    <option value="1">激活</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" align="left" style="padding-left:160px;">
+                <input type="button" onClick="update()" value="保存" class="buttonStyle"/>
+                <input onClick="dialogClose()" class="buttonStyle" type="button" value="关闭"/>
+            </td>
+        </tr>
+
+    </table>
+
+</div>
+</body>
+
+</html>

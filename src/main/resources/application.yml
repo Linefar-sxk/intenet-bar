@@ -1,0 +1,18 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    name: internet-bar
+    url: jdbc:mysql://111.231.250.50:3306/internet_bar?useUnicode=true&amp&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: YB25KH2lJNt91
+  thymeleaf:
+    mode: HTML
+    encoding: utf-8
+    servlet:
+      content-type: text/html
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+

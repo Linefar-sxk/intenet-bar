@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登陆界面</title>
+    <script src="js/jquery.js"></script>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+<div class="login">
+    <h1 class="login-title">**网吧管理员登陆</h1><br/>
+    <input type="text" name="mobile" class="login-input" placeholder="请输入电话号码" autofocus/>
+    <input type="password" name="password" class="login-input" placeholder="请输入密码"/>
+    <input type="submit" value="登陆" class="login-submit"/>
+</div>
+
+<script type="text/javascript">
+    $(".login-submit").click(function () {
+        $.ajax({
+            type:"post",
+            url:"/admin/login",
+            data:{mobile:$('input[name=mobile]').val(),password:$('input[name=password]').val()},
+            success:function (data) {
+                console.log(data);
+                if (!data){
+                    alert("账号或密码输入错误！")
+                }else {
+                    window.location.href = "/admin/list"
+                }
+            }
+        })
+    })
+
+</script>
+
+</body>
+</html>

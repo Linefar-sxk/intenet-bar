@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>会员列表</title>
+    <style>
+        body{
+            background-image:url(/img/back.jpg);
+        }
+        .condition {
+            margin: 0 auto;
+            width: 60%;
+            height: 50px;
+            line-height: 50px;
+        }
+
+        .list {
+            margin: 0 auto;
+            margin-left: 20%;
+        }
+
+        .ui-search {
+            margin-right: 40px;
+        }
+        .title{
+            font-size: 40px;
+            font-weight: 500;
+        }
+    </style>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/js/zDialog.js"></script>
+    <script src="/js/zDrag.js"></script>
+    <script src="/js/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" href="/css/demo.css">
+    <link rel="stylesheet" href="/css/easyui.css">
+    <link rel="stylesheet" href="/css/icon.css">
+</head>
+<body>
+<div style="height: 5%">
+    <p style="text-align: center;" class="title">**网吧会员上网列表</p>
+</div>
+<div style="height: 95%">
+    <div class="condition">
+        <table>
+            <tr>
+                <td>类型：</td>
+                <td>
+                    <select id="select" class="ui-search">
+                        <option>-请选择查询类型-</option>
+                        <option value="idCard">身份证号</option>
+                        <option value="name">姓名</option>
+                    </select>
+                </td>
+                <td>条件：</td>
+                <td>
+                    <input type="text" id="input-text" class="ui-search"/>
+                </td>
+                <td>
+                    <input type="button" id="search" value="查询"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="list">
+        <table id="table-grid" class="easyui-datagrid" style="width:60%;height:650px;"></table>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#table-grid").datagrid({
+            url: '/customer/list',
+            method: 'get',
+            singleSelect: true,
+            columns: [
+                [
+                    {field: 'id', title: '主键', width: 100, hidden: true},
+                    {field: 'name', title: '姓名', width: 150},
+                    {
+                        field: 'idCard', title: '身份证号', width: 240,
+                        formatter: function (value, row, index) {
+                            return "<a href='javascript:void(0)' onclick='detail(\"" + row.id + "\")'>" + value + "</a>";
+                        }
+                    },
+                    {field: 'money', title: '余额', width: 100},
+                    {
+                        field: 'type', title: '会员卡类型', width: 100,
+                        formatter: function (value, row, index) {
+                            if (value == 'year') {
+                                return "年卡";
+                            } else if (value == "month") {
+                                return "月卡";
+                            } else if (value == "common") {
+                                return "次卡";
+                            } else {
+                                return "";
+                            }
+                        }
+                    },
+                    {field: 'startTime', title: '上机时间', width: 200},
+                    {
+                        field: 'activationState', title: '操作',
+                        formatter: function (value, row, index) {
+                            if (value == 0) {
+                                return "<input type='button' style='color: green;' value='上机' onclick='onLine(\"" + row.idCard + "\")'/>"
+                            } else {
+                                return "<input type='button' style='color: red;' value='下机' onclick='onLine(\"" + row.idCard + "\")'/>"
+                            }
+                        }
+                    }
+                ]
+            ],
+            toolbar: [{
+                iconCls: 'icon-add',
+                handler: function () {
+                    add();
+                }
+            }, '-', {
+                iconCls: 'icon-edit',
+                handler: function () {
+                    var row = $('#table-grid').datagrid('getSelected');
+                    if (row.id) {
+                        edit(row);
+                    } else {
+                        alert("选择要修改的数据")
+                    }
+                }
+            }, '-', {
+                iconCls: 'icon-remove',
+                handler: function () {
+                    var row = $('#table-grid').datagrid('getSelected');
+                    if (row.id) {
+                        remove(row);
+                    } else {
+                        alert("选择要删除的数据")
+                    }
+                }
+            }]
+        });
+    });
+
+    function onLine(idCard) {
+        $.ajax({
+            type: "post",
+            url: "/recharge/record/play?idCard=" + idCard,
+            success:function () {
+                gridReload();
+            }
+        })
+    }
+
+    function outLine(idCard) {
+        $.ajax({
+            type: "post",
+            url: "/recharge/record/offline?idCard=" + idCard,
+            success:function () {
+                gridReload();
+            }
+        })
+    }
+
+    function add() {
+        var diag = new Dialog();
+        diag.Width = 400;
+        diag.Height = 200;
+        diag.Title = "新增会员信息";
+        diag.URL = "/dialog/add";
+        diag.show();
+    }
+
+    function edit(row) {
+        var diag = new Dialog();
+        diag.Width = 400;
+        diag.Height = 200;
+        diag.Title = "修改会员信息";
+        diag.URL = "/dialog/edit?customerId=" + row.id;
+        diag.show();
+    }
+
+    function detail(id) {
+        var diag = new Dialog();
+        diag.Width = 600;
+        diag.Height = 300;
+        diag.Title = "会员信息详情";
+        diag.URL = "/dialog/detail?customerId=" + id;
+        diag.show();
+    }
+
+    function remove(row) {
+        if (confirm("您确定删除吗？")) {
+            $.ajax({
+                type: "post",
+                url: "/admin/login/" + row.id,
+                success: function (data) {
+                    console.log(data);
+                    if (data) {
+                        alert("会员删除成功！")
+                    }
+                }
+            })
+        }
+    }
+
+    function notify(operate, result) {
+        alert(operate + "会员信息" + result + "！")
+    }
+
+    function gridReload() {
+        $('#table-grid').datagrid('reload');
+    }
+
+</script>
+</body>
+</html>
