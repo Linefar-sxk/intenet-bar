@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>会员列表</title>
     <style>
-        body{
-            background-image:url(/img/back.jpg);
+        body {
+            background-image: url(/img/back.jpg);
         }
+
         .condition {
             margin: 0 auto;
             width: 60%;
@@ -16,13 +17,14 @@
 
         .list {
             margin: 0 auto;
-            margin-left: 20%;
+            margin-left: 15%;
         }
 
         .ui-search {
             margin-right: 40px;
         }
-        .title{
+
+        .title {
             font-size: 40px;
             font-weight: 500;
         }
@@ -46,6 +48,14 @@
             <tr>
                 <td>类型：</td>
                 <td>
+                    <select id="activationState" class="ui-search">
+                        <option>-请选上网状态-</option>
+                        <option value="0">未上网</option>
+                        <option value="1">上网</option>
+                    </select>
+                </td>
+                <td>类型：</td>
+                <td>
                     <select id="select" class="ui-search">
                         <option>-请选择查询类型-</option>
                         <option value="idCard">身份证号</option>
@@ -57,20 +67,25 @@
                     <input type="text" id="input-text" class="ui-search"/>
                 </td>
                 <td>
-                    <input type="button" id="search" value="查询"/>
+                    <input type="button" id="search" onclick="search()" value="查询"/>
                 </td>
             </tr>
         </table>
     </div>
     <div class="list">
-        <table id="table-grid" class="easyui-datagrid" style="width:60%;height:650px;"></table>
+        <table id="table-grid" class="easyui-datagrid" style="width:70%;height:650px;"></table>
     </div>
 </div>
 <script type="text/javascript">
     $(function () {
+        dataGrid('/customer/list');
+    });
+
+    function dataGrid(url, data) {
         $("#table-grid").datagrid({
-            url: '/customer/list',
+            url: url,
             method: 'get',
+            queryParams: data,
             singleSelect: true,
             columns: [
                 [
@@ -97,14 +112,25 @@
                             }
                         }
                     },
-                    {field: 'startTime', title: '上机时间', width: 200},
+                    {
+                        field: 'startTime', title: '上机时间', width: 200,
+                        formatter: function (value) {
+                            return dateConvert(value);
+                        }
+                    },
+                    {
+                        field: 'endTime', title: '预计下机时间', width: 200,
+                        formatter: function (value) {
+                            return dateConvert(value);
+                        }
+                    },
                     {
                         field: 'activationState', title: '操作',
                         formatter: function (value, row, index) {
                             if (value == 0) {
                                 return "<input type='button' style='color: green;' value='上机' onclick='onLine(\"" + row.idCard + "\")'/>"
                             } else {
-                                return "<input type='button' style='color: red;' value='下机' onclick='onLine(\"" + row.idCard + "\")'/>"
+                                return "<input type='button' style='color: red;' value='下机' onclick='outLine(\"" + row.idCard + "\")'/>"
                             }
                         }
                     }
@@ -137,13 +163,13 @@
                 }
             }]
         });
-    });
+    }
 
     function onLine(idCard) {
         $.ajax({
             type: "post",
             url: "/recharge/record/play?idCard=" + idCard,
-            success:function () {
+            success: function () {
                 gridReload();
             }
         })
@@ -153,7 +179,7 @@
         $.ajax({
             type: "post",
             url: "/recharge/record/offline?idCard=" + idCard,
-            success:function () {
+            success: function () {
                 gridReload();
             }
         })
@@ -207,6 +233,35 @@
 
     function gridReload() {
         $('#table-grid').datagrid('reload');
+    }
+
+    function search() {
+        var _data;
+        if ($("#select").val() == "idCard" && $("#activationState").val() !="-请选上网状态-") {
+            _data = {activationState:$("#activationState").val(),idCard: $("#input-text").val()};
+        } else if ($("#select").val() == "name" && $("#activationState").val() !="-请选上网状态-") {
+            _data = {activationState:$("#activationState").val(),name: $("#input-text").val()};
+        } else if ($("#select").val() == "idCard" && $("#activationState").val() =="-请选上网状态-") {
+            _data = {idCard: $("#input-text").val()};
+        } else if ($("#select").val() == "name" && $("#activationState").val() =="-请选上网状态-") {
+            _data = {name: $("#input-text").val()};
+        } else {
+            _data = {};
+        }
+        dataGrid('/customer/list',_data);
+    }
+
+
+    function dateConvert(date) {
+        Date
+        myDate = new Date(date);
+        var year = myDate.getFullYear();
+        var month = myDate.getMonth() + 1;
+        var day = myDate.getDate();
+        var hour = myDate.getHours();
+        var mi = myDate.getMinutes();
+        var second = myDate.getSeconds();
+        return year + "-" + month + "-" + day + " " + hour + ":" + mi + ":" + second;
     }
 
 </script>

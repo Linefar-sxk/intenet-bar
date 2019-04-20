@@ -19,8 +19,7 @@
             $("#tabs").tabs();
             customerId = getUrlParam('customerId');
             setValue();
-            rechargeRecord();
-            playRecord();
+
         });
 
         function dialogClose() {
@@ -62,16 +61,20 @@
                         $("#idCard").val(data.idCard);
                         $("#money").val(data.money);
                         $("#type").val(data.type);
-                        $("#activationState").val(data.activationState);
+                        // $("#activationState").val(data.activationState);
                         $("#id").val(data.id);
+                        $("#password").val(data.password);
                     } else {
                         $("#name").val("");
                         $("#idCard").val("");
                         $("#money").val(0);
                         $("#type").val("");
-                        $("#activationState").val("");
+                        // $("#activationState").val("");
                         $("#id").val("");
+                        $("#password").val("");
                     }
+                    rechargeRecord();
+                    playRecord();
                 }
             })
         }
@@ -86,7 +89,7 @@
                     if (data) {
                         var tableHtml;
                         for (var i = 0; i < data.length; i++) {
-                            tableHtml += "<tr><td>" + data[i].dateCreate + "</td><td>" + data.changeMoney + "</td></tr>";
+                            tableHtml += "<tr><td>" + dateConvert(data[i].dateCreate) + "</td><td>" + data.changeMoney + "</td></tr>";
                         }
                         $("#recharge-table").html(tableHtml);
                     }
@@ -105,9 +108,9 @@
                         var tableHtml;
                         for (var i = 0; i < data.length; i++) {
                             //次处 duration 换成上网时长
-                            tableHtml += "<tr><td>" + data[i].startTime + "</td><td>" + data.endTime + "</td><td>" + data[i].duration + "</tr>";
+                            tableHtml += "<tr><td>" + dateConvert(data[i].startTime) + "</td><td>" + dateConvert(data.endTime) + "</td><td>" + data[i].duration/3600 + "</tr>";
                         }
-                        $("#recharge-table").html(tableHtml);
+                        $("#play-table").html(tableHtml);
                     }
                 }
             })
@@ -119,6 +122,18 @@
             var r = window.location.search.substr(1).match(reg);  //匹配目标参数
             if (r != null) return unescape(r[2]);
             return null; //返回参数值
+        }
+
+        function dateConvert(date) {
+            Date
+            myDate = new Date(date);
+            var year = myDate.getFullYear();
+            var month = myDate.getMonth() + 1;
+            var day = myDate.getDate();
+            var hour = myDate.getHours();
+            var mi = myDate.getMinutes();
+            var second = myDate.getSeconds();
+            return year + "-" + month + "-" + day + " " + hour + ":" + mi + ":" + second;
         }
 
     </script>
@@ -155,6 +170,11 @@
                 </tr>
 
                 <tr>
+                    <td width="150" align="right">登陆密码：</td>
+                    <td><input type="text" id="password"/></td>
+                </tr>
+
+                <tr>
                     <td align="right">充值金额</td>
                     <td><input type="text" id="money" disabled/></td>
                 </tr>
@@ -171,16 +191,16 @@
                     </td>
                 </tr>
 
-                <tr>
-                    <td align="right">激活状态：</td>
-                    <td>
-                        <select id="activationState" style="width: 199px;height: 24px;" disabled>
-                            <option>-请选择激活状态-</option>
-                            <option value="0">未激活</option>
-                            <option value="1">激活</option>
-                        </select>
-                    </td>
-                </tr>
+                <!--<tr>-->
+                    <!--<td align="right">激活状态：</td>-->
+                    <!--<td>-->
+                        <!--<select id="activationState" style="width: 199px;height: 24px;" disabled>-->
+                            <!--<option>-请选择激活状态-</option>-->
+                            <!--<option value="0">未激活</option>-->
+                            <!--<option value="1">激活</option>-->
+                        <!--</select>-->
+                    <!--</td>-->
+                <!--</tr>-->
 
             </table>
 
@@ -191,7 +211,7 @@
             <table>
                 <tr>
                     <th>缴费时间</th>
-                    <th>缴费金额</th>
+                    <th>缴费金额(元)</th>
                 </tr>
                 <tbody id="recharge-table"></tbody>
             </table>
@@ -203,7 +223,7 @@
                 <tr>
                     <th>上机时间</th>
                     <th>下机时间</th>
-                    <th>上机时长</th>
+                    <th>上机时长（分）</th>
                 </tr>
                 <tbody id="play-table"></tbody>
             </table>
