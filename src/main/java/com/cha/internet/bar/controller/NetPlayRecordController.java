@@ -2,6 +2,7 @@ package com.cha.internet.bar.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.cha.internet.bar.controller.resp.CustomerResp;
 import com.cha.internet.bar.entity.AdminEntity;
 import com.cha.internet.bar.entity.NetPlayRecordEntity;
 import com.cha.internet.bar.service.INetPlayRecordService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,6 +40,7 @@ public class NetPlayRecordController {
         QueryWrapper<NetPlayRecordEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(NetPlayRecordEntity.ID_CARD, idCard);
         List<NetPlayRecordEntity> netPlayRecordEntities = netPlayRecordService.list(queryWrapper);
+        netPlayRecordEntities.sort(Comparator.comparing(NetPlayRecordEntity::getDateUpdate).reversed());
 
         return netPlayRecordEntities;
 

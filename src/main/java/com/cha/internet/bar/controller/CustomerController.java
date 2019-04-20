@@ -115,13 +115,21 @@ public class CustomerController {
     @ApiOperation(value = "查询所有用户根据类型", httpMethod = "GET")
     @RequestMapping(value = "list", method = RequestMethod.GET)
     public List<CustomerResp> list(String type,
-                                   Integer activationState) {
+                                   Integer activationState,
+                                   String idCard,
+                                   String name) {
         QueryWrapper<CustomerEntity> queryWrapper = new QueryWrapper<>();
         if (!StringUtils.isEmpty(type)) {
             queryWrapper.eq(CustomerEntity.TYPE, type);
         }
         if (activationState != null) {
             queryWrapper.eq(CustomerEntity.ACTIVATION_STATE, activationState);
+        }
+        if (!StringUtils.isEmpty(idCard)) {
+            queryWrapper.eq(CustomerEntity.ID_CARD, idCard);
+        }
+        if (!StringUtils.isEmpty(type)) {
+            queryWrapper.eq(CustomerEntity.NAME, name);
         }
         List<CustomerEntity> customerEntities = customerService.list(queryWrapper);
         List<CustomerResp> resp = BeanConvertUtil.listConvert(customerEntities, CustomerResp.class);
@@ -142,7 +150,7 @@ public class CustomerController {
             }
 
         }
-
+        resp.sort(Comparator.comparing(CustomerResp::getDateUpdate).reversed());
         return resp;
     }
 

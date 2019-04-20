@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -96,6 +97,7 @@ public class RechargeRecordController {
         QueryWrapper<RechargeRecordEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(RechargeRecordEntity.ID_CARD, idCard);
         List<RechargeRecordEntity> rechargeRecordEntities = rechargeRecordService.list(queryWrapper);
+        rechargeRecordEntities.sort(Comparator.comparing(RechargeRecordEntity::getDateUpdate).reversed());
 
         return rechargeRecordEntities;
     }
