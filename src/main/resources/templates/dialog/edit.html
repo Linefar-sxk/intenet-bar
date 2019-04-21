@@ -28,7 +28,8 @@
 
         function update() {
             if (oldMoney > $("#money").val()) {
-                alert("充值金额不能小于0元")
+                alert("充值金额不能小于0元");
+                return false;
             }
             $.ajax({
                 type: "post",
