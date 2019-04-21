@@ -6,8 +6,10 @@ import com.cha.internet.bar.config.BeanConvertUtil;
 import com.cha.internet.bar.controller.resp.CustomerResp;
 import com.cha.internet.bar.entity.CustomerEntity;
 import com.cha.internet.bar.entity.NetPlayRecordEntity;
+import com.cha.internet.bar.entity.RechargeRecordEntity;
 import com.cha.internet.bar.service.ICustomerService;
 import com.cha.internet.bar.service.INetPlayRecordService;
+import com.cha.internet.bar.service.IRechargeRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/customer")
 public class CustomerController {
+
+
+    @Autowired
+    private IRechargeRecordService rechargeRecordService;
 
     @Autowired
     private ICustomerService customerService;
@@ -69,7 +75,14 @@ public class CustomerController {
                          String name,
                          String idCard,
                          String type,
+                         String money,
                          String password) {
+
+
+        QueryWrapper<CustomerEntity> q = new QueryWrapper<>();
+        q.eq(CustomerEntity.ID_CARD, idCard);
+        CustomerEntity old = customerService.getOne(q);
+
 
         CustomerEntity customerEntity = new CustomerEntity();
         customerEntity.setId(customerId);
@@ -77,6 +90,7 @@ public class CustomerController {
         if (!StringUtils.isEmpty(idCard)) {
             customerEntity.setType(idCard);
         }
+
         if (!StringUtils.isEmpty(name)) {
             customerEntity.setType(name);
         }
@@ -86,8 +100,26 @@ public class CustomerController {
         if (!StringUtils.isEmpty(password)) {
             customerEntity.setPassword(password);
         }
+        if (!StringUtils.isEmpty(money)) {
+            if (!money.equals(old.getMoney())) {
+                int a = Integer.parseInt(money) - Integer.parseInt(old.getMoney());
+
+                RechargeRecordEntity entity = new RechargeRecordEntity();
+                entity.setId(UUID.randomUUID().toString());
+                entity.setIdCard(idCard);
+                entity.setChangeMoney(String.valueOf(a));
+                entity.setType("ADD");
+                entity.setDateCreate(new Date());
+                entity.setDateUpdate(new Date());
+                rechargeRecordService.save(entity);
+
+            }
+            customerEntity.setMoney(money);
+        }
         customerEntity.setDateUpdate(new Date());
         customerService.updateById(customerEntity);
+
+
         return customerEntity.getId();
     }
 
@@ -133,22 +165,22 @@ public class CustomerController {
             queryWrapper.eq(CustomerEntity.NAME, name);
         }
         List<CustomerEntity> customerEntities = customerService.list(queryWrapper);
-        if(CollectionUtils.isEmpty(customerEntities)){
+        if (CollectionUtils.isEmpty(customerEntities)) {
             return new ArrayList<>();
         }
         List<CustomerResp> resp = BeanConvertUtil.listConvert(customerEntities, CustomerResp.class);
         QueryWrapper<NetPlayRecordEntity> q2 = new QueryWrapper<>();
         List<String> idCrads = customerEntities.stream().map(CustomerEntity::getIdCard).collect(Collectors.toList());
-       q2.in(NetPlayRecordEntity.ID_CARD, idCrads).eq(NetPlayRecordEntity.DATE_DELETE, 0);
-        if (idCrads.size() > 0){
+        q2.in(NetPlayRecordEntity.ID_CARD, idCrads).eq(NetPlayRecordEntity.DATE_DELETE, 0);
+        if (idCrads.size() > 0) {
             q2.in(NetPlayRecordEntity.ID_CARD, idCrads);
         }
-        q2.eq(NetPlayRecordEntity.DATE_DELETE,0);
+        q2.eq(NetPlayRecordEntity.DATE_DELETE, 0);
         List<NetPlayRecordEntity> nets = netPlayRecordService.list(q2);
         Map<String, NetPlayRecordEntity> netMap = nets.stream().collect(Collectors.toMap(NetPlayRecordEntity::getIdCard, Function.identity(), (k1, k2) -> k1));
-        for(CustomerResp temp:resp){
-            NetPlayRecordEntity entity=netMap.get(temp.getIdCard());
-            if(entity !=null){
+        for (CustomerResp temp : resp) {
+            NetPlayRecordEntity entity = netMap.get(temp.getIdCard());
+            if (entity != null) {
                 temp.setStartTime(entity.getStartTime());
                 temp.setEndTime(entity.getEndTime());
             }
@@ -158,9 +190,9 @@ public class CustomerController {
         return resp;
     }
 
-    @ApiOperation(value = "根据id查询用户信息",httpMethod = "GET")
-    @RequestMapping(value = "getByCustomerId",method = RequestMethod.GET)
-    public CustomerEntity getByCustomerId(String customerId){
+    @ApiOperation(value = "根据id查询用户信息", httpMethod = "GET")
+    @RequestMapping(value = "getByCustomerId", method = RequestMethod.GET)
+    public CustomerEntity getByCustomerId(String customerId) {
         CustomerEntity customerEntity = customerService.getById(customerId);
         return customerEntity;
     }
