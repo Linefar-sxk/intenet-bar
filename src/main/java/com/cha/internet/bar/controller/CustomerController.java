@@ -58,6 +58,19 @@ public class CustomerController {
         customerEntity.setName(name);
         customerEntity.setIdCard(idCard);
         customerEntity.setMoney(money);
+        if(!StringUtils.isEmpty(money)){
+
+            RechargeRecordEntity entity = new RechargeRecordEntity();
+            entity.setId(UUID.randomUUID().toString());
+            entity.setIdCard(idCard);
+            entity.setChangeMoney(money);
+            entity.setType("ADD");
+            entity.setDateCreate(new Date());
+            entity.setDateUpdate(new Date());
+            //插入交款记录
+            rechargeRecordService.save(entity);
+
+        }
         //type  COMMON 不是会员 YEAR MONTH
         customerEntity.setType(type);
         // 当前是否上网用户 0 不是 1是
