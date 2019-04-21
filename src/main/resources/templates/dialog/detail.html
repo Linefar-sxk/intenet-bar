@@ -89,7 +89,7 @@
                     if (data) {
                         var tableHtml;
                         for (var i = 0; i < data.length; i++) {
-                            tableHtml += "<tr><td>" + dateConvert(data[i].dateCreate) + "</td><td>" + data.changeMoney + "</td></tr>";
+                            tableHtml += "<tr><td>" + dateConvert(data[i].dateCreate) + "</td><td>" + data[i].changeMoney + "</td></tr>";
                         }
                         $("#recharge-table").html(tableHtml);
                     }
