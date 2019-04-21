@@ -102,6 +102,7 @@ public class CustomerController {
         }
         if (!StringUtils.isEmpty(money)) {
             if (!money.equals(old.getMoney())) {
+                //计算这次修改的金额
                 int a = Integer.parseInt(money) - Integer.parseInt(old.getMoney());
 
                 RechargeRecordEntity entity = new RechargeRecordEntity();
@@ -111,6 +112,7 @@ public class CustomerController {
                 entity.setType("ADD");
                 entity.setDateCreate(new Date());
                 entity.setDateUpdate(new Date());
+                //插入交款记录
                 rechargeRecordService.save(entity);
 
             }
